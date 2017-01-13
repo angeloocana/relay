@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import Hello from "./components/Hello";
+import Main from "./components/main";
 
-console.log("Hello js 2");
+console.log("Hello js 3");
 
-ReactDOM.render(<Hello />, document.getElementById('react'));
+ReactDOM.render(<Main />, document.getElementById('react'));

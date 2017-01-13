@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start22": "nodemon --exec babel-node --presets react,es2015 server.js",
-    "start": "gulp js && babel-node --presets react,es2015 dist/server/index.js",
+    "start": "gulp js && gulp webpack && babel-node --presets react,es2015 dist/server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "webpack": "webpack"
   },
@@ -22,7 +22,12 @@
   "dependencies": {
     "babel-loader": "^6.2.10",
     "babel-preset-react": "^6.16.0",
+    "events": "^1.1.1",
     "express": "^4.14.0",
+    "flux": "^3.1.2",
+    "jquery": "^3.1.1",
+    "kerberos": "0.0.22",
+    "mongodb": "^2.2.21",
     "react": "^15.4.2",
     "react-dom": "^15.4.2"
   },
