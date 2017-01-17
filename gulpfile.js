@@ -20,21 +20,26 @@ gulp.task("js", function () {
 });
 
 gulp.task("webpack", function(){
-	var conf = {
-		output:{
-                	filename: "bundle.js"
-        	},
-        	module:{
-                	loaders: [
-                       	 { test: /\.js$/, loader: 'babel-loader',
-                        	        query: {presets:['react','es2015']}
-                	        }
-        	        ]
-	        }
+    var conf = {
+        output:{
+            filename: "bundle.js"
+        },
+        module:{
+            loaders: [
+            { 
+                test: /\.js$/, 
+                loader: 'babel-loader',
+                query: {
+                    presets:['react','es2015'],
+                    plugins: ['./babelRelayPlugin'].map(require.resolve)
+                }
+            }
+            ]
+        }
 
-	};
+    };
 
-	return gulp.src('dist/frontend/app.js')
-		.pipe(webpack(conf))
-		.pipe(gulp.dest('dist/public/'));
+    return gulp.src('dist/frontend/app.js')
+        .pipe(webpack(conf))
+        .pipe(gulp.dest('dist/public/'));
 });
