@@ -9,6 +9,7 @@ function Schema(db) {
             counter: { type: GraphQLInt }
         })
     });
+    var store = {};
     var linkType = new GraphQLObjectType({
         name: 'Link',
         fields: () => ({
@@ -17,10 +18,23 @@ function Schema(db) {
             url: { type: GraphQLString }
         })
     });
+    var storeType = new GraphQLObjectType({
+        name: 'Store',
+        fields: () => ({
+            links: {
+                type: new GraphQLList(linkType),
+                resolve: () => db.collection('links').find({}).toArray()
+            }
+        })
+    });
     var schema = new GraphQLSchema({
         query: new GraphQLObjectType({
             name: 'Query',
             fields: () => ({
+                store: {
+                    type: storeType,
+                    resolve: () => store
+                },
                 counter: {
                     type: GraphQLInt,
                     resolve: () => counter

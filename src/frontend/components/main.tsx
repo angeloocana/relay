@@ -1,15 +1,7 @@
 import React from 'react';
-import API from '../api';
-import LinkStore from '../stores/LinkStore';
+import Relay from 'react-relay';
 
-console.log('Main');
-console.log('LinkStore', LinkStore);
-
-var _getAppState = () => {
-	return { links: LinkStore.getAll()};
-};
-
-export default class Main extends React.Component<any, any>{
+class Main extends React.Component<any, any>{
 
     static propTypes = {
         limit: React.PropTypes.number
@@ -19,28 +11,8 @@ export default class Main extends React.Component<any, any>{
         limit: 4    
     }
 
-	state = _getAppState();
-
-    //using arrow function in order to remove the need to bind this: this.onChange = this.onChange.bind(this);
-    onChange = () => {
-		console.log('4. in View');
-		this.setState(_getAppState());
-	}
-
-	componentWillMount(){
-	}
-	
-	componentWillUnmount(){
-		LinkStore.removeListener('change', this.onChange);
-	}
-
-	componentDidMount(){
-		API.fetchLinks();
-		LinkStore.on('change', this.onChange);
-	}	
-
 	render(){
-		var content = this.state.links.slice(0, this.props.limit).map(link => {
+		var content = this.props.store.links.slice(0, this.props.limit).map(link => {
 			return <li key={link._id}>
 				<a href={link.url}>{link.title}</a>
 				</li>;
@@ -55,3 +27,18 @@ export default class Main extends React.Component<any, any>{
 	}
 }
 
+Main = Relay.createContainer(Main, {
+    fragments: {
+       store: () => Relay.QL`
+        fragment on Store{
+            links{
+                _id,
+                title,
+                url
+            }
+        }
+       `
+    }
+});
+
+export default Main;
