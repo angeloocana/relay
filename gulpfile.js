@@ -3,6 +3,7 @@ var ts = require("gulp-typescript");
 var babel = require("gulp-babel");
 //var rename = require("gulp-rename");
 var webpack = require("gulp-webpack");
+var fs = require('fs');
 
 gulp.task("js", function () {
     // Using my existing tsconfig.json file
@@ -40,6 +41,11 @@ gulp.task("webpack", function(){
     };
 
     return gulp.src('dist/frontend/app.js')
-        .pipe(webpack(conf))
+        .pipe(webpack(conf, null, function(err, stats){
+            //upload the generated file to http://webpack.github.io/analyse/
+            fs.writeFile('dist/webpack-stats.json', stats, function(err){
+                if(err) console.log('Error writing webpack stats',err);
+            })
+        }))
         .pipe(gulp.dest('dist/public/'));
 });

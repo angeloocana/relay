@@ -9,6 +9,7 @@ import {
 } from 'graphql';
 
 import{
+    globalIdField,
     connectionDefinitions,
     connectionArgs,
     connectionFromPromisedArray,
@@ -49,6 +50,7 @@ function Schema(db){
     var storeType = new GraphQLObjectType({
         name: 'Store',
         fields: () => ({
+            id: globalIdField('Store'),
             linkConnection: {
                 type: linkConnection.connectionType,
                 args: connectionArgs,
@@ -72,9 +74,13 @@ function Schema(db){
         },
         
         outputFields:{
-            link: {
-                type: linkType,
-                resolve: (obj) => obj.ops[0]
+            linkEdge: {
+                type: linkConnection.edgeType,
+                resolve: (obj) => ({node: obj.ops[0], cursor: obj.insertedId})
+            },
+            store:{
+                type: storeType,
+                resolve: () => store
             }
         },
         

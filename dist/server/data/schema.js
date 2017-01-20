@@ -1,5 +1,5 @@
 import { GraphQLSchema, GraphQLObjectType, GraphQLInt, GraphQLString, GraphQLList, GraphQLNonNull, GraphQLID } from 'graphql';
-import { connectionDefinitions, connectionArgs, connectionFromPromisedArray, mutationWithClientMutationId } from 'graphql-relay';
+import { globalIdField, connectionDefinitions, connectionArgs, connectionFromPromisedArray, mutationWithClientMutationId } from 'graphql-relay';
 function Schema(db) {
     var counter = 42;
     var data = [42, 43, 44];
@@ -29,6 +29,7 @@ function Schema(db) {
     var storeType = new GraphQLObjectType({
         name: 'Store',
         fields: () => ({
+            id: globalIdField('Store'),
             linkConnection: {
                 type: linkConnection.connectionType,
                 args: connectionArgs,
@@ -46,9 +47,13 @@ function Schema(db) {
             url: { type: new GraphQLNonNull(GraphQLString) }
         },
         outputFields: {
-            link: {
-                type: linkType,
-                resolve: (obj) => obj.ops[0]
+            linkEdge: {
+                type: linkConnection.edgeType,
+                resolve: (obj) => ({ node: obj.ops[0], cursor: obj.insertedId })
+            },
+            store: {
+                type: storeType,
+                resolve: () => store
             }
         },
         mutateAndGetPayload: ({ title, url }) => {
