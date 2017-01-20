@@ -46565,6 +46565,10 @@
 
 	var _reactRelay2 = _interopRequireDefault(_reactRelay);
 
+	var _Link = __webpack_require__(478);
+
+	var _Link2 = _interopRequireDefault(_Link);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -46579,57 +46583,113 @@
 	    function Main() {
 	        _classCallCheck(this, Main);
 
-	        return _possibleConstructorReturn(this, (Main.__proto__ || Object.getPrototypeOf(Main)).apply(this, arguments));
+	        var _this = _possibleConstructorReturn(this, (Main.__proto__ || Object.getPrototypeOf(Main)).apply(this, arguments));
+
+	        _this.setLimit = function (e) {
+	            var newLimit = Number(e.target.value);
+	            _this.props.relay.setVariables({ limit: newLimit });
+	        };
+	        return _this;
 	    }
 
 	    _createClass(Main, [{
 	        key: 'render',
 	        value: function render() {
-	            var content = this.props.store.links.slice(0, this.props.limit).map(function (link) {
-	                return _react2.default.createElement("li", { key: link._id }, _react2.default.createElement("a", { href: link.url }, link.title));
+	            var content = this.props.store.linkConnection.edges.map(function (edge) {
+	                return _react2.default.createElement(_Link2.default, { key: edge.node.id, link: edge.node });
 	            });
-	            return _react2.default.createElement("div", null, _react2.default.createElement("h3", null, "Links"), _react2.default.createElement("ul", null, content));
+	            return _react2.default.createElement("div", null, _react2.default.createElement("h3", null, "Links"), _react2.default.createElement("label", { htmlFor: 'pagination-limit' }, "Showing"), _react2.default.createElement("select", { id: 'pagination-limit', onChange: this.setLimit }, _react2.default.createElement("option", { value: "2" }, "2"), _react2.default.createElement("option", { value: "3", selected: true }, "3")), _react2.default.createElement("ul", null, content));
 	        }
 	    }]);
 
 	    return Main;
 	}(_react2.default.Component);
 
-	Main.propTypes = {
-	    limit: _react2.default.PropTypes.number
-	};
-	Main.defaultProps = {
-	    limit: 4
-	};
 	Main = _reactRelay2.default.createContainer(Main, {
+	    initialVariables: {
+	        limit: 3
+	    },
 	    fragments: {
 	        store: function store() {
-	            return function () {
+	            return function (RQL_0) {
 	                return {
 	                    children: [{
-	                        children: [{
-	                            fieldName: '_id',
-	                            kind: 'Field',
+	                        calls: [{
+	                            kind: 'Call',
 	                            metadata: {},
-	                            type: 'String'
-	                        }, {
-	                            fieldName: 'title',
-	                            kind: 'Field',
-	                            metadata: {},
-	                            type: 'String'
-	                        }, {
-	                            fieldName: 'url',
-	                            kind: 'Field',
-	                            metadata: {},
-	                            type: 'String'
+	                            name: 'first',
+	                            value: {
+	                                kind: 'CallVariable',
+	                                callVariableName: 'limit'
+	                            }
 	                        }],
-	                        fieldName: 'links',
+	                        children: [{
+	                            children: [{
+	                                children: [].concat.apply([], [{
+	                                    fieldName: 'id',
+	                                    kind: 'Field',
+	                                    metadata: {
+	                                        isRequisite: true
+	                                    },
+	                                    type: 'ID'
+	                                }, _reactRelay2.default.QL.__frag(RQL_0)]),
+	                                fieldName: 'node',
+	                                kind: 'Field',
+	                                metadata: {
+	                                    canHaveSubselections: true,
+	                                    isRequisite: true
+	                                },
+	                                type: 'Link'
+	                            }, {
+	                                fieldName: 'cursor',
+	                                kind: 'Field',
+	                                metadata: {
+	                                    isGenerated: true,
+	                                    isRequisite: true
+	                                },
+	                                type: 'String'
+	                            }],
+	                            fieldName: 'edges',
+	                            kind: 'Field',
+	                            metadata: {
+	                                canHaveSubselections: true,
+	                                isPlural: true
+	                            },
+	                            type: 'LinkEdge'
+	                        }, {
+	                            children: [{
+	                                fieldName: 'hasNextPage',
+	                                kind: 'Field',
+	                                metadata: {
+	                                    isGenerated: true,
+	                                    isRequisite: true
+	                                },
+	                                type: 'Boolean'
+	                            }, {
+	                                fieldName: 'hasPreviousPage',
+	                                kind: 'Field',
+	                                metadata: {
+	                                    isGenerated: true,
+	                                    isRequisite: true
+	                                },
+	                                type: 'Boolean'
+	                            }],
+	                            fieldName: 'pageInfo',
+	                            kind: 'Field',
+	                            metadata: {
+	                                canHaveSubselections: true,
+	                                isGenerated: true,
+	                                isRequisite: true
+	                            },
+	                            type: 'PageInfo'
+	                        }],
+	                        fieldName: 'linkConnection',
 	                        kind: 'Field',
 	                        metadata: {
 	                            canHaveSubselections: true,
-	                            isPlural: true
+	                            isConnection: true
 	                        },
-	                        type: 'Link'
+	                        type: 'LinkConnection'
 	                    }],
 	                    id: _reactRelay2.default.QL.__id(),
 	                    kind: 'Fragment',
@@ -46637,11 +46697,96 @@
 	                    name: 'Main_StoreRelayQL',
 	                    type: 'Store'
 	                };
-	            }();
+	            }(_Link2.default.getFragment('link'));
 	        }
 	    }
 	});
 	exports.default = Main;
+
+/***/ },
+/* 478 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRelay = __webpack_require__(179);
+
+	var _reactRelay2 = _interopRequireDefault(_reactRelay);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Link = function (_React$Component) {
+	    _inherits(Link, _React$Component);
+
+	    function Link() {
+	        _classCallCheck(this, Link);
+
+	        return _possibleConstructorReturn(this, (Link.__proto__ || Object.getPrototypeOf(Link)).apply(this, arguments));
+	    }
+
+	    _createClass(Link, [{
+	        key: 'render',
+	        value: function render() {
+	            var link = this.props.link;
+
+	            return _react2.default.createElement("li", null, _react2.default.createElement("a", { href: link.url }, link.title));
+	        }
+	    }]);
+
+	    return Link;
+	}(_react2.default.Component);
+
+	Link = _reactRelay2.default.createContainer(Link, {
+	    fragments: {
+	        link: function link() {
+	            return function () {
+	                return {
+	                    children: [{
+	                        fieldName: 'url',
+	                        kind: 'Field',
+	                        metadata: {},
+	                        type: 'String'
+	                    }, {
+	                        fieldName: 'title',
+	                        kind: 'Field',
+	                        metadata: {},
+	                        type: 'String'
+	                    }, {
+	                        fieldName: 'id',
+	                        kind: 'Field',
+	                        metadata: {
+	                            isGenerated: true,
+	                            isRequisite: true
+	                        },
+	                        type: 'ID'
+	                    }],
+	                    id: _reactRelay2.default.QL.__id(),
+	                    kind: 'Fragment',
+	                    metadata: {},
+	                    name: 'Link_LinkRelayQL',
+	                    type: 'Link'
+	                };
+	            }();
+	        }
+	    }
+	});
+	exports.default = Link;
 
 /***/ }
 /******/ ]);

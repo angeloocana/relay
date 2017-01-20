@@ -3,8 +3,16 @@ import {
     GraphQLObjectType,
     GraphQLInt,
     GraphQLString,
-    GraphQLList
+    GraphQLList,
+    GraphQLNonNull,
+    GraphQLID
 } from 'graphql';
+
+import{
+    connectionDefinitions,
+    connectionArgs,
+    connectionFromPromisedArray
+} from 'graphql-relay';
 
 function Schema(db){
 
@@ -23,18 +31,30 @@ function Schema(db){
     var linkType = new GraphQLObjectType({
         name: 'Link',
         fields: () => ({
-            _id: {type: GraphQLString},
+            id: {
+                type: new GraphQLNonNull(GraphQLID),
+                resolve: (obj) => obj._id
+            },
             title: {type: GraphQLString},
             url: { type: GraphQLString}
         })
     });
 
+    var linkConnection = connectionDefinitions({
+        name: 'Link',
+        nodeType: linkType
+    });
+
     var storeType = new GraphQLObjectType({
         name: 'Store',
         fields: () => ({
-            links: {
-                type: new GraphQLList(linkType),
-                resolve: () => db.collection('links').find({}).toArray()
+            linkConnection: {
+                type: linkConnection.connectionType,
+                args: connectionArgs,
+                resolve: (_, args) => connectionFromPromisedArray( 
+                    db.collection('links').find({}).limit(args.first).toArray(),
+                    args
+                )
             }
         })
     });

@@ -18,33 +18,38 @@ const MONGO_URL = 'mongodb://localhost:27017/relay',
 	PORT = 3000;
 
 (async () => {
-    var db = await MongoClient.connect(MONGO_URL);
-    var schema = Schema(db);
+    try{
+        var db = await MongoClient.connect(MONGO_URL);
+        var schema = Schema(db);
 
-    app.use('/graphql', GraphQlHttp({
-        schema,
-        graphiql: true
-    }));
+        app.use('/graphql', GraphQlHttp({
+            schema,
+            graphiql: true
+        }));
 
-    app.listen(PORT, () => console.log('Listening on port ' + PORT));
+        app.listen(PORT, () => console.log('Listening on port ' + PORT));
 
-    //Generate schema.json
-    var json = await graphql(schema, introspectionQuery);
-    fs.writeFile('./dist/server/data/schema.json', JSON.stringify(json, null, 2), err => {
-        if(err) throw err;
-
-        console.log('Json schema created!');
-    });
-
-    //API example
-    app.get('/data/links', (req, res) => {
-        
-        db.collection('links').find({}).toArray((err, links)=>{
+        //Generate schema.json
+        var json = await graphql(schema, introspectionQuery);
+        fs.writeFile('./dist/server/data/schema.json', JSON.stringify(json, null, 2), err => {
             if(err) throw err;
 
-            res.json(links);
+            console.log('Json schema created!');
         });
-    });
+
+        //API example
+        app.get('/data/links', (req, res) => {
+            
+            db.collection('links').find({}).toArray((err, links)=>{
+                if(err) throw err;
+
+                res.json(links);
+            });
+        });
+    }
+    catch(e){
+        console.log(e);
+    }
 })();
 
 /*
