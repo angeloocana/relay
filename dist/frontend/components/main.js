@@ -7,6 +7,8 @@ class Main extends React.Component {
         this.setLimit = (e) => {
             var newLimit = Number(e.target.value);
             this.props.relay.setVariables({ limit: newLimit });
+            console.log('newLimit', newLimit);
+            console.log('relay', this.props.relay);
         };
     }
     render() {
@@ -17,14 +19,14 @@ class Main extends React.Component {
             React.createElement("h3", null, "Links"),
             React.createElement("label", { htmlFor: 'pagination-limit' }, "Showing"),
             React.createElement("select", { id: 'pagination-limit', onChange: this.setLimit },
-                React.createElement("option", { value: "2" }, "2"),
-                React.createElement("option", { value: "3", selected: true }, "3")),
+                React.createElement("option", { value: "10" }, "10"),
+                React.createElement("option", { value: "20", selected: true }, "20")),
             React.createElement("ul", null, content)));
     }
 }
 Main = Relay.createContainer(Main, {
     initialVariables: {
-        limit: 3
+        limit: 20
     },
     fragments: {
         store: () => Relay.QL `

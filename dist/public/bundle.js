@@ -46588,6 +46588,8 @@
 	        _this.setLimit = function (e) {
 	            var newLimit = Number(e.target.value);
 	            _this.props.relay.setVariables({ limit: newLimit });
+	            console.log('newLimit', newLimit);
+	            console.log('relay', _this.props.relay);
 	        };
 	        return _this;
 	    }
@@ -46598,7 +46600,7 @@
 	            var content = this.props.store.linkConnection.edges.map(function (edge) {
 	                return _react2.default.createElement(_Link2.default, { key: edge.node.id, link: edge.node });
 	            });
-	            return _react2.default.createElement("div", null, _react2.default.createElement("h3", null, "Links"), _react2.default.createElement("label", { htmlFor: 'pagination-limit' }, "Showing"), _react2.default.createElement("select", { id: 'pagination-limit', onChange: this.setLimit }, _react2.default.createElement("option", { value: "2" }, "2"), _react2.default.createElement("option", { value: "3", selected: true }, "3")), _react2.default.createElement("ul", null, content));
+	            return _react2.default.createElement("div", null, _react2.default.createElement("h3", null, "Links"), _react2.default.createElement("label", { htmlFor: 'pagination-limit' }, "Showing"), _react2.default.createElement("select", { id: 'pagination-limit', onChange: this.setLimit }, _react2.default.createElement("option", { value: "10" }, "10"), _react2.default.createElement("option", { value: "20", selected: true }, "20")), _react2.default.createElement("ul", null, content));
 	        }
 	    }]);
 
@@ -46607,7 +46609,7 @@
 
 	Main = _reactRelay2.default.createContainer(Main, {
 	    initialVariables: {
-	        limit: 3
+	        limit: 20
 	    },
 	    fragments: {
 	        store: function store() {

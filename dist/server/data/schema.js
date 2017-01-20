@@ -1,5 +1,5 @@
 import { GraphQLSchema, GraphQLObjectType, GraphQLInt, GraphQLString, GraphQLList, GraphQLNonNull, GraphQLID } from 'graphql';
-import { connectionDefinitions, connectionArgs, connectionFromPromisedArray } from 'graphql-relay';
+import { connectionDefinitions, connectionArgs, connectionFromPromisedArray, mutationWithClientMutationId } from 'graphql-relay';
 function Schema(db) {
     var counter = 42;
     var data = [42, 43, 44];
@@ -32,9 +32,28 @@ function Schema(db) {
             linkConnection: {
                 type: linkConnection.connectionType,
                 args: connectionArgs,
-                resolve: (_, args) => connectionFromPromisedArray(db.collection('links').find({}).limit(args.first).toArray(), args)
+                resolve: (_, args) => {
+                    console.log('limit', args.first);
+                    return connectionFromPromisedArray(db.collection('links').find({}).limit(args.first).toArray(), args);
+                }
             }
         })
+    });
+    var createLinkMutation = mutationWithClientMutationId({
+        name: 'CreateLink',
+        inputFields: {
+            title: { type: new GraphQLNonNull(GraphQLString) },
+            url: { type: new GraphQLNonNull(GraphQLString) }
+        },
+        outputFields: {
+            link: {
+                type: linkType,
+                resolve: (obj) => obj.ops[0]
+            }
+        },
+        mutateAndGetPayload: ({ title, url }) => {
+            return db.collection('links').insertOne({ title, url });
+        }
     });
     var schema = new GraphQLSchema({
         query: new GraphQLObjectType({
@@ -69,10 +88,7 @@ function Schema(db) {
         mutation: new GraphQLObjectType({
             name: 'Mutation',
             fields: () => ({
-                incrementCounter: {
-                    type: GraphQLInt,
-                    resolve: () => ++counter
-                }
+                createLink: createLinkMutation
             })
         })
     });
