@@ -1,11 +1,17 @@
 import React from 'react';
 import Relay from 'react-relay';
+import {debounce} from 'lodash';
 
 import Link from './Link';
 import CreateLinkMutation from "../mutations/CreateLinkMutation";
 
 class Main extends React.Component<any, any>{
  
+    constructor(props){
+        super(props);
+
+        this._searchTask = debounce(this._searchTask, 300);
+    }
     /* props validation example
     static propTypes = {
         limit: React.PropTypes.number
@@ -15,6 +21,16 @@ class Main extends React.Component<any, any>{
         limit: 4    
     }
     */
+
+    _searchTask = (e) => {
+        let query = e.target.value;
+        this.props.relay.setVariables({ query });
+    }
+
+    search = (e) => {
+        e.persist();   
+        this._searchTask(e);
+    }
 
     setLimit = (e) => {
         var newLimit = Number(e.target.value);
@@ -51,6 +67,7 @@ class Main extends React.Component<any, any>{
                 <button type="submit">Add</button>
             </form>
             <label htmlFor='pagination-limit'>Showing</label>
+            <input type="text" placeholder="Search" onChange={this.search} />
             <select id='pagination-limit' onChange={this.setLimit} 
                 defaultValue={this.props.relay.variables.limit}>
                 <option value="10">10</option>
@@ -65,13 +82,14 @@ class Main extends React.Component<any, any>{
 
 Main = Relay.createContainer(Main, {
     initialVariables: {
-        limit: 20
+        limit: 20,
+        query: ''
     },
     fragments: {
        store: () => Relay.QL`
         fragment on Store{
             id,
-            linkConnection(first: $limit){
+            linkConnection(first: $limit, query: $query){
                 edges{
                     node{
                         id,

@@ -10,6 +10,8 @@ import {
 
 import{
     globalIdField,
+    fromGlobalId,
+    nodeDefinitions,
     connectionDefinitions,
     connectionArgs,
     connectionFromPromisedArray,
@@ -17,7 +19,7 @@ import{
 } from 'graphql-relay';
 
 function Schema(db){
-
+    
     var counter = 42;
     var data = [42, 43, 44];
 
@@ -29,7 +31,25 @@ function Schema(db){
         })
     });
 
-    var store = {};
+    class Store {}
+    var store = new Store();
+
+    var nodeDefs = nodeDefinitions(
+        (globalId) => {
+            let {type} = fromGlobalId(globalId);
+            if(type === 'Store'){
+                return store;
+            }
+            return null;
+        },
+        (obj) => {
+            if(obj instanceof Store){
+                return storeType;
+            }
+            return null;
+        }
+    );
+
     var linkType = new GraphQLObjectType({
         name: 'Link',
         fields: () => ({
@@ -38,7 +58,11 @@ function Schema(db){
                 resolve: (obj) => obj._id
             },
             title: {type: GraphQLString},
-            url: { type: GraphQLString}
+            url: { type: GraphQLString},
+            createdAt: {
+                type: GraphQLString,
+                resolve: (obj) => new Date(obj.createdAt).toISOString()
+            }
         })
     });
 
@@ -53,16 +77,27 @@ function Schema(db){
             id: globalIdField('Store'),
             linkConnection: {
                 type: linkConnection.connectionType,
-                args: connectionArgs,
+                args: {
+                   ...connectionArgs,
+                   query: {type: GraphQLString }
+                },
                 resolve: (_, args) =>{ 
+                    var findParams = {};
+                    if(args.query){
+                        findParams.title = new RegExp(args.query, 'i')
+                    }
                     console.log('limit', args.first);
                     return connectionFromPromisedArray( 
-                    db.collection('links').find({}).limit(args.first).toArray(),
+                        db.collection('links')
+                            .find(findParams)
+                            .sort({createdAt: -1})
+                            .limit(args.first).toArray(),
                     args
                 );
                 }
             }
-        })
+        }),
+        interfaces: [nodeDefs.nodeInterface]
     });
 
     var createLinkMutation = mutationWithClientMutationId({
@@ -85,7 +120,11 @@ function Schema(db){
         },
         
         mutateAndGetPayload: ({title, url}) => {
-            return db.collection('links').insertOne({title, url});
+            return db.collection('links').insertOne({
+                title, 
+                url,
+                createdAt: Date.now()
+            });
         }
     });
 
@@ -93,6 +132,7 @@ function Schema(db){
         query: new GraphQLObjectType({
             name: 'Query',
             fields: () => ({           
+                node: nodeDefs.nodeField,
                 store:{
                     type: storeType,
                     resolve: () => store

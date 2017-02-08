@@ -6,6 +6,7 @@
 /// <reference path="modules/flux/index.d.ts" />
 /// <reference path="modules/graphql-relay/index.d.ts" />
 /// <reference path="modules/graphql/index.d.ts" />
+/// <reference path="modules/lodash/index.d.ts" />
 /// <reference path="modules/mongodb/index.d.ts" />
 /// <reference path="modules/react-dom/index.d.ts" />
 /// <reference path="modules/react/index.d.ts" />
